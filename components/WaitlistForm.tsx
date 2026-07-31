@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, Check, Mail } from "lucide-react";
 import { PrimaryButton } from "./ui";
+import { supabase } from "@/lib/supabase";
 
 export function WaitlistForm({ compact = false }: { compact?: boolean }) {
   const [email, setEmail] = useState("");
@@ -10,10 +11,29 @@ export function WaitlistForm({ compact = false }: { compact?: boolean }) {
   const [product, setProduct] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [showExtra, setShowExtra] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!email.includes("@")) return;
+
+    setLoading(true);
+    setError("");
+
+    const { error: insertError } = await supabase.from("waitlist_signups").insert({
+      email,
+      company: company || null,
+      product: product || null,
+    });
+
+    setLoading(false);
+
+    if (insertError) {
+      setError("Something went wrong. Please try again.");
+      return;
+    }
+
     setSubmitted(true);
   }
 
@@ -49,9 +69,11 @@ export function WaitlistForm({ compact = false }: { compact?: boolean }) {
           />
         </div>
         <PrimaryButton type="submit" className="whitespace-nowrap">
-          Join Waitlist <ArrowRight size={16} />
+          {loading ? "Joining..." : "Join Waitlist"} {!loading && <ArrowRight size={16} />}
         </PrimaryButton>
       </div>
+
+      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
 
       {!compact && (
         <div className="mt-3">
@@ -71,20 +93,4 @@ export function WaitlistForm({ compact = false }: { compact?: boolean }) {
                 onChange={(e) => setCompany(e.target.value)}
                 className="rounded-xl border border-ink-600 bg-ink-950/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-blue-500"
               />
-              <input
-                type="text"
-                placeholder="Product name (optional)"
-                value={product}
-                onChange={(e) => setProduct(e.target.value)}
-                className="rounded-xl border border-ink-600 bg-ink-950/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-blue-500"
-              />
-            </div>
-          )}
-        </div>
-      )}
-      <p className="mt-3 font-mono text-[11px] text-slate-600">
-        No spam. One email when access opens.
-      </p>
-    </form>
-  );
-}
+              
