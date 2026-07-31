@@ -93,4 +93,20 @@ export function WaitlistForm({ compact = false }: { compact?: boolean }) {
                 onChange={(e) => setCompany(e.target.value)}
                 className="rounded-xl border border-ink-600 bg-ink-950/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-blue-500"
               />
-              
+              <input
+                type="text"
+                placeholder="Product name (optional)"
+                value={product}
+                onChange={(e) => setProduct(e.target.value)}
+                className="rounded-xl border border-ink-600 bg-ink-950/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-blue-500"
+              />
+            </div>
+          )}
+        </div>
+      )}
+      <p className="mt-3 font-mono text-[11px] text-slate-600">
+        No spam. One email when access opens.
+      </p>
+    </form>
+  );
+}
